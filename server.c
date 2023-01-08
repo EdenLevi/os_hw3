@@ -1,5 +1,6 @@
 #include "segel.h"
 #include "request.h"
+#include <stdbool.h>
 
 #define EMPTY -1
 // 
@@ -22,11 +23,6 @@ pthread_cond_t slave;
 typedef enum {
     BLOCK, DT, DH, RANDOM, ERROR
 } sched;
-typedef struct Thread_t {
-    int id;
-    struct timeval init_time;
-    struct timeval free_time;
-} *Thread;
 
 typedef struct list_t {
     Thread *threads;
@@ -104,7 +100,7 @@ void deleteList(list l) {
 
 
 void *createThread(void *args) {
-    struct stati stat;
+    struct stati_t stat;
     ThreadManager threadM = ((ThreadManager) args);
     stat.id=threadM->id;
     stat.stat_dyn=0;
@@ -116,7 +112,7 @@ void *createThread(void *args) {
         }
 
         Thread t = threadM->buffer_list->counter ? threadM->buffer_list->threads[threadM->buffer_list->first] : NULL;
-        listRemove(threadM->buffer_list, true);
+        listRemove(threadM->buffer_list, 1);
 
         threadM->run_list->counter++;
         gettimeofday(&(t->free_time), NULL);
@@ -178,6 +174,9 @@ int main(int argc, char *argv[]) {
         pthread_create(&t[i], NULL, createThread, (void *) &t_man[i]);
     }
 
+    struct timeval time;
+
+
     listenfd = Open_listenfd(port);
     while (1) {
         clientlen = sizeof(clientaddr);
@@ -218,7 +217,7 @@ int main(int argc, char *argv[]) {
 
                 case DH:
                     del = wait_list->counter ? wait_list->threads[wait_list->first] : NULL;
-                    listRemove(wait_list, true);
+                    listRemove(wait_list, 1);
                     Close(del->id);
                     free(del);
                     listAdd(wait_list, new_t);
