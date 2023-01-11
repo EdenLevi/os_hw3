@@ -1,10 +1,10 @@
 //
 // request.c: Does the bulk of the work for the web server.
-// 
+//
 
 #include "segel.h"
 #include "request.h"
-#include "server.c"
+
 
 // requestError(      fd,    filename,        "404",    "Not found", "OS-HW3 Server could not find this file");
 void requestError(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg, Thread thread, Stati stats) {
@@ -203,7 +203,7 @@ void requestHandle(Thread thread, Stati stati) {
     char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
     char filename[MAXLINE], cgiargs[MAXLINE];
     rio_t rio;
-    
+
     int fd = thread->id;
 
     Rio_readinitb(&rio, fd);

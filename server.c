@@ -2,6 +2,7 @@
 #include "request.h"
 #include <stdbool.h>
 
+
 #define EMPTY -1
 // 
 // server.c: A very, very simple web server
@@ -53,6 +54,13 @@ list createList(int size) {
 
 void listAdd(list l, Thread t) {
     if (l->counter == l->size) {
+        return;
+    }
+    if(l->counter==0){
+        l->threads[0]=t;
+        l->last=0;
+        l->first=0;
+        l->counter++;
         return;
     }
     l->counter++;
@@ -110,12 +118,11 @@ void *createThread(void *args) {
         while (!threadM->buffer_list->counter) {
             pthread_cond_wait(&slave, &m);
         }
-
         Thread t = threadM->buffer_list->counter ? threadM->buffer_list->threads[threadM->buffer_list->first] : NULL;
         listRemove(threadM->buffer_list, 1);
 
         threadM->run_list->counter++;
-        gettimeofday(&(t->free_time), NULL);
+            gettimeofday(&(t->free_time), NULL);
         pthread_mutex_unlock(&m);
 
         //maybe we will need to pass t and not t->id
